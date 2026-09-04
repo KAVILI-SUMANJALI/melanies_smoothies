@@ -27,7 +27,7 @@ cnx = st.connection("snowflake")
 # Get the Snowflake session
 session = cnx.session()
 
-# Get FRUIT_NAME and SEARCH_ON from FRUIT_OPTIONS
+# Get FRUIT_NAME and SEARCH_ON columns
 my_dataframe = session.table(
     "smoothies.public.fruit_options"
 ).select(
@@ -47,23 +47,25 @@ ingredients = st.multiselect(
     fruit_list
 )
 
-# Process selected ingredients
 if ingredients:
 
     ingredients_string = ''
 
     for fruit_chosen in ingredients:
 
-        # Add selected fruit to order string
-        ingredients_string += fruit_chosen + ','
+        # Add comma only BETWEEN fruits
+        if ingredients_string:
+            ingredients_string += ','
 
-        # Find the SEARCH_ON value for the selected fruit
+        ingredients_string += fruit_chosen
+
+        # Find SEARCH_ON value
         search_on = pd_df.loc[
             pd_df['FRUIT_NAME'] == fruit_chosen,
             'SEARCH_ON'
         ].iloc[0]
 
-        # Show the search value
+        # Display search value
         st.write(
             'The search value for ',
             fruit_chosen,
@@ -79,7 +81,7 @@ if ingredients:
         )
 
         # Display nutrition information
-        sf_df = st.dataframe(
+        st.dataframe(
             data=smoothiefroot_response.json(),
             use_container_width=True
         )
