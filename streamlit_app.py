@@ -48,6 +48,9 @@ if ingredients:
     st.write(my_insert_stmt)
 
     submit = st.button("Submit Order")
+    import requests  
+smoothiefroot_response = requests.get("[https://my.smoothiefroot.com/api/fruit/watermelon](https://my.smoothiefroot.com/api/fruit/watermelon)")  
+st.text(smoothiefroot_response)
 
     if submit:
         session.sql(my_insert_stmt).collect()
