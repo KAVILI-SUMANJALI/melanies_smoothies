@@ -27,7 +27,7 @@ cnx = st.connection("snowflake")
 # Get the Snowflake session
 session = cnx.session()
 
-# Get FRUIT_NAME and SEARCH_ON columns
+# Get FRUIT_NAME and SEARCH_ON
 my_dataframe = session.table(
     "smoothies.public.fruit_options"
 ).select(
@@ -35,10 +35,10 @@ my_dataframe = session.table(
     col("SEARCH_ON")
 )
 
-# Convert Snowflake dataframe to pandas dataframe
+# Convert to pandas dataframe
 pd_df = my_dataframe.to_pandas()
 
-# Create list of fruits for the multiselect
+# Create fruit list for multiselect
 fruit_list = pd_df["FRUIT_NAME"].tolist()
 
 # Multiselect
@@ -53,19 +53,19 @@ if ingredients:
 
     for fruit_chosen in ingredients:
 
-        # Add comma only BETWEEN fruits
+        # Add comma only between fruits
         if ingredients_string:
             ingredients_string += ','
 
+        # Keep the GUI name for the order
         ingredients_string += fruit_chosen
 
-        # Find SEARCH_ON value
+        # Get SEARCH_ON value
         search_on = pd_df.loc[
             pd_df['FRUIT_NAME'] == fruit_chosen,
             'SEARCH_ON'
         ].iloc[0]
 
-        # Display search value
         st.write(
             'The search value for ',
             fruit_chosen,
@@ -74,7 +74,7 @@ if ingredients:
             '.'
         )
 
-        # Call SmoothieFroot API
+        # Call SmoothieFroot API using SEARCH_ON
         smoothiefroot_response = requests.get(
             "https://my.smoothiefroot.com/api/fruit/"
             + search_on
@@ -89,17 +89,16 @@ if ingredients:
     # Display ingredients
     st.write(ingredients_string)
 
-    # Create INSERT statement
+    # Insert order into Snowflake
     my_insert_stmt = """
         INSERT INTO smoothies.public.orders
         (ingredients, name_on_order)
         VALUES ('""" + ingredients_string + """','""" + name_on_order + """')
     """
 
-    # Display INSERT statement
     st.write(my_insert_stmt)
 
-    # Submit button
+    # Submit order
     submit = st.button("Submit Order")
 
     if submit:
